@@ -1,6 +1,11 @@
 # GOGS snap
 
-This is a revamp of the original gogs snap from the snappy playpen.
+This is a revamp of the original [gogs snap](https://github.com/ubuntu/snappy-playpen/tree/master/gogs) from the snappy playpen.
+
+[Gogs](https://github.com/gogits/gogs) is a self-hosted Git service similar to gitlab and github, written in Go.
+
+This snap provides a quick and easy way to install the latest version of gogs via:
+`sudo snap install gogsgit`
 
 ## Default Daemon
 

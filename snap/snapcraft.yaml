@@ -5,11 +5,14 @@ description: |
   way of setting up a self-hosted Git service. With Go, this can be done with
   an independent binary distribution across ALL platforms that Go supports,
   including Linux, Mac OS X, Windows and ARM.
+
+type: app
+confinement: strict
+grade: stable
+
 version: 'script'
 version-script: |
   echo "$(cat stage/static/templates/.VERSION)+snap-$(git reflog | head -n1 | cut -d' ' -f1)"
-confinement: strict
-grade: stable
 
 apps:
   gogsgit:
@@ -99,6 +102,10 @@ parts:
             $SNAPCRAFT_PART_INSTALL/README-gogs.md
     prime:
       - -etc
+      - -usr/lib/systemd
+      - -usr/lib/gcc
+      - -usr/lib/sasl2
+      - -usr/lib/x86_64-linux-gnu/krb5
       - -usr/share/apport
       - -usr/share/bash-completion
       - -usr/share/doc
