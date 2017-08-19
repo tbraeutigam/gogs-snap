@@ -7,40 +7,40 @@ description: |
   including Linux, Mac OS X, Windows and ARM.
 version: 'script'
 version-script: |
-  echo "$(cat stage/templates/.VERSION)+snap0"
+  echo "$(cat stage/static/templates/.VERSION)+snap-$(git reflog | head -n1 | cut -d' ' -f1)"
 confinement: strict
 grade: stable
 
 
 apps:
   gogsgit:
-    command: ./launcher.sh
+    command: bin/run
     daemon: simple
     plugs: [network, network-bind]
   web:
-    command: launcher.sh direct web
+    command: bin/run direct web
     plugs: [network, network-bind]
   hook:
-    command: launcher.sh direct hook
+    command: bin/run direct hook
     plugs: [network, network-bind]
   cert:
-    command: launcher.sh direct cert
-    plugs: [network, network-bind]
+    command: bin/run direct cert
+#    plugs: [network, network-bind]
   admin:
-    command: launcher.sh direct admin
-    plugs: [network, network-bind]
+    command: bin/run direct admin
+#    plugs: [network, network-bind]
   import:
-    command: launcher.sh direct import
-    plugs: [network, network-bind]
+    command: bin/run direct import
+#    plugs: [network, network-bind]
   backup:
-    command: launcher.sh direct backup
-    plugs: [network, network-bind]
+    command: bin/run direct backup
+#    plugs: [network, network-bind]
   restore:
-    command: launcher.sh direct restore
-    plugs: [network, network-bind]
+    command: bin/run direct restore
+#    plugs: [network, network-bind]
   help:
-    command: launcher.sh help
-    plugs: [network, network-bind]
+    command: bin/run help
+#    plugs: [network, network-bind]
 
 parts:
   gogs:
@@ -50,6 +50,9 @@ parts:
     source-tag: v0.11.29
     stage-packages: [ git, sqlite3, openssh-client ]
     build-packages: [ libpam0g-dev, libsqlite3-dev, golang-1.8-go ]
+    organize:
+      LICENSE: LICENSE-gogs
+      README.md: README-gogs.md
     prepare: |
       export PATH=/usr/lib/go1.8/bin:$PATH
       export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
@@ -84,16 +87,27 @@ parts:
       ###
       # Copy build artifact and necessary files
       ##
-      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      mkdir -p $SNAPCRAFT_PART_INSTALL/static
       cp    $SNAPCRAFT_PART_INSTALL/../go/src/github.com/gogits/gogs/gogs \
             $SNAPCRAFT_PART_INSTALL/bin/
       cp -r $src/LICENSE \
-            $src/README.md \
             $src/templates \
             $src/public \
             $src/scripts \
-            $SNAPCRAFT_PART_INSTALL/
+            $SNAPCRAFT_PART_INSTALL/static/
+      cp    $src/README.md \
+            $SNAPCRAFT_PART_INSTALL/README-gogs.md
 
-  gogsconf:
+  helpers:
     plugin: dump
     source: snap/helpers
+    organize:
+      launcher.sh: bin/run
+      directorySetup.sh: bin/directorySetup.sh
+
+  readme:
+    plugin: dump
+    source: ./
+    organize:
+      LICENSE: LICENSE-snap

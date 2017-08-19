@@ -1,14 +1,14 @@
 #!/bin/bash
-[ ! -z $DEBUG ] && echo "Starting Gogs..."
-source $SNAP/directorySetup.sh
+source $SNAP/bin/directorySetup.sh
 
+# Set usernames for gogs
 export USERNAME=root
 export USER=root
 
 if [ ! -f $appini ]; then
   echo "app.ini not found. Initializing Configuration."
-  out=$(sed s!SNAP_DIR_DATA!$SDATA!g $SNAP/app.ini 2>/dev/null)
-  out=$(echo "$out" | sed s!SNAP_DIR_COMMON!$SCOMMON!g 2>/dev/null)
+  out=$(sed s!SNAP_DIR_DATA!$SDATA!g $SNAP/app.ini)
+  out=$(echo "$out" | sed s!SNAP_DIR_COMMON!$SCOMMON!g)
   echo "$out" > $appini
 fi
 
@@ -34,14 +34,7 @@ if [ -z $1 ] || [ "$1" = "web" ]; then
   cd $SNAP/bin
   exec ./gogs web -c $appini
 elif [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-  echo "Available Gogs-Snap Commands:"
-  echo "  "
-  echo "  help         Display this page"
-  echo "  web          Run Gogs. [Default]"
-  echo "  cert         Generate self-signed certs"
-  echo "  direct       Provides pull access to the gogs commandline."
-  echo "               Keep in mind any strict-confinement requirements."
-  echo "  "
+  less $SNAP/README.md
   exit 0
 elif [ "$1" = "cert" ]; then
   if [ "$2" = "help" ] || [ "$2" = "-h" ] || [ "$2" = "--help" ]; then
