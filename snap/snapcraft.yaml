@@ -1,0 +1,99 @@
+name: gogsgit
+summary:  GOGS - A painless self-hosted Git service
+description: |
+  The goal of this project is to make the easiest, fastest, and most painless
+  way of setting up a self-hosted Git service. With Go, this can be done with
+  an independent binary distribution across ALL platforms that Go supports,
+  including Linux, Mac OS X, Windows and ARM.
+version: 'script'
+version-script: |
+  cat ../prime/templates/.VERSION
+confinement: strict
+grade: stable
+
+
+apps:
+  gogsgit:
+    command: ./launcher.sh
+    daemon: simple
+    plugs: [network, network-bind]
+  web:
+    command: launcher.sh direct web
+    plugs: [network, network-bind]
+  hook:
+    command: launcher.sh direct hook
+    plugs: [network, network-bind]
+  cert:
+    command: launcher.sh direct cert
+    plugs: [network, network-bind]
+  admin:
+    command: launcher.sh direct admin
+    plugs: [network, network-bind]
+  import:
+    command: launcher.sh direct import
+    plugs: [network, network-bind]
+  backup:
+    command: launcher.sh direct backup
+    plugs: [network, network-bind]
+  restore:
+    command: launcher.sh direct restore
+    plugs: [network, network-bind]
+  help:
+    command: launcher.sh help
+    plugs: [network, network-bind]
+
+parts:
+  gogs:
+    plugin: nil
+    source: https://github.com/gogits/gogs
+    source-type: git
+    source-tag: v0.11.29
+    stage-packages: [ git, sqlite3, openssh-client ]
+    build-packages: [ libpam0g-dev, libsqlite3-dev, golang-1.8-go ]
+    prepare: |
+      export PATH=/usr/lib/go1.8/bin:$PATH
+      export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
+      export bld=$SNAPCRAFT_PART_INSTALL/../build
+      export src=$SNAPCRAFT_PART_INSTALL/../src
+      mkdir -p $GOPATH; cd $bld;
+      cp -r $src/* $bld/
+      ###
+      # Ad-Hoc patch of cert function to enable adding an output directory
+      ##
+      if grep -q "Directory to which the certificate" $src/cmd/cert.go; then
+        echo "Already Patched."
+      else
+        sed -i '/cli.Flag/a stringFlag("out, o", "./", "Directory to which the certificate should be written"),' cmd/cert.go
+        sed -i 's_"cert.pem"_ctx.String("out") + "cert.pem"_g' cmd/cert.go
+        sed -i 's_"key.pem"_ctx.String("out") + "key.pem"_g' cmd/cert.go
+        git add .
+        git commit -m "Committing cert command output dir patch"
+      fi
+      mkdir -p $GOPATH/src/github.com/gogits/gogs
+      cp -r $bld/* $GOPATH/src/github.com/gogits/gogs/
+    build: |
+      export PATH=/usr/lib/go1.8/bin:$PATH
+      export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
+      cd $GOPATH/src/github.com/gogits/gogs
+      go build -v -tags "sqlite pam cert"
+    install: |
+      ###
+      # Set Convenience Variables
+      ##
+      src=$SNAPCRAFT_PART_INSTALL/../go/src/github.com/gogits/gogs
+      ###
+      # Copy build artifact and necessary files
+      ##
+      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      cp    $SNAPCRAFT_PART_INSTALL/../go/src/github.com/gogits/gogs/gogs \
+            $SNAPCRAFT_PART_INSTALL/bin/
+      cp -r $src/LICENSE \
+            $src/README.md \
+            $src/templates \
+            $src/public \
+            $src/scripts \
+            $SNAPCRAFT_PART_INSTALL/
+
+  gogsconf:
+    plugin: dump
+    source: snap/helpers
