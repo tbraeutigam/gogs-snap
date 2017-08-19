@@ -11,7 +11,6 @@ version-script: |
 confinement: strict
 grade: stable
 
-
 apps:
   gogsgit:
     command: bin/run
@@ -25,36 +24,36 @@ apps:
     plugs: [network, network-bind]
   cert:
     command: bin/run direct cert
-#    plugs: [network, network-bind]
   admin:
     command: bin/run direct admin
-#    plugs: [network, network-bind]
   import:
     command: bin/run direct import
-#    plugs: [network, network-bind]
   backup:
     command: bin/run direct backup
-#    plugs: [network, network-bind]
   restore:
     command: bin/run direct restore
-#    plugs: [network, network-bind]
   help:
     command: bin/run help
-#    plugs: [network, network-bind]
 
 parts:
+  go:
+    source-tag: go1.8.3
+    prime:
+      - -*
+
   gogs:
     plugin: nil
     source: https://github.com/gogits/gogs
     source-type: git
     source-tag: v0.11.29
+    after: [ go ]
     stage-packages: [ git, sqlite3, openssh-client ]
-    build-packages: [ libpam0g-dev, libsqlite3-dev, golang-1.8-go ]
+    build-packages: [ libpam0g-dev, libsqlite3-dev]
     organize:
       LICENSE: LICENSE-gogs
       README.md: README-gogs.md
     prepare: |
-      export PATH=/usr/lib/go1.8/bin:$PATH
+      export PATH=$SNAPCRAFT_PART_INSTAL/../../go/install/bin:$PATH
       export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
       export bld=$SNAPCRAFT_PART_INSTALL/../build
       export src=$SNAPCRAFT_PART_INSTALL/../src
@@ -75,7 +74,7 @@ parts:
       mkdir -p $GOPATH/src/github.com/gogits/gogs
       cp -r $bld/* $GOPATH/src/github.com/gogits/gogs/
     build: |
-      export PATH=/usr/lib/go1.8/bin:$PATH
+      export PATH=$SNAPCRAFT_PART_INSTAL/../../go/install/bin:$PATH
       export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
       cd $GOPATH/src/github.com/gogits/gogs
       go build -v -tags "sqlite pam cert"
