@@ -98,6 +98,16 @@ parts:
             $SNAPCRAFT_PART_INSTALL/static/
       cp    $src/README.md \
             $SNAPCRAFT_PART_INSTALL/README-gogs.md
+    prime:
+      - -etc
+      - -usr/share/apport
+      - -usr/share/bash-completion
+      - -usr/share/doc
+      - -usr/share/git-core/contrib
+      - -usr/share/man
+      - -usr/share/upstart
+      - -var
+
 
   helpers:
     plugin: dump

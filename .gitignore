@@ -19,3 +19,4 @@ parts/
 stage/
 prime/
 *.snap
+*.snap-build
