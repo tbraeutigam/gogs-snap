@@ -1,5 +1,7 @@
 # GOGS snap
 
+[![Snap Status](https://build.snapcraft.io/badge/tbraeutigam/gogs-snap.svg)](https://build.snapcraft.io/user/tbraeutigam/gogs-snap)
+
 This is a revamp of the original [gogs snap](https://github.com/ubuntu/snappy-playpen/tree/master/gogs) from the snappy playpen.
 
 [Gogs](https://github.com/gogits/gogs) is a self-hosted Git service similar to gitlab and github, written in Go.

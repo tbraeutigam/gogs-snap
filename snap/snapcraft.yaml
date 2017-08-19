@@ -7,6 +7,7 @@ description: |
   including Linux, Mac OS X, Windows and ARM.
 
 type: app
+icon: snap/gogs.svg
 confinement: strict
 grade: stable
 
