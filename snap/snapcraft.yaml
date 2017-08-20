@@ -1,5 +1,6 @@
 name: gogsgit
 summary:  GOGS - A painless self-hosted Git service
+contact: https://github.com/tbraeutigam/gogs-snap/issues
 description: |
   The goal of this project is to make the easiest, fastest, and most painless
   way of setting up a self-hosted Git service. With Go, this can be done with
