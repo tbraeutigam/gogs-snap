@@ -43,7 +43,7 @@ elif [ "$1" = "cert" ]; then
     exit 0
   fi
   #echo "Executing: $SNAP/bin/gogs $@ -o $SDATA/certs"
-  cd $SNAP/bin; exec ./gogs $@ -o $SDATA/certs
+  cd $SNAP/bin; exec ./gogs $@ -o $SDATA/certs/
 elif [ "$1" = "direct" ]; then
   para=$(echo "$@" | sed 's_^direct __')
   #echo "Executing $SNAP/bin/gogs $para"
