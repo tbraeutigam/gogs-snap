@@ -47,9 +47,12 @@ elif [ "$1" = "cert" ]; then
 elif [ "$1" = "enableHttps" ]; then
   if grep -q 'https://' $appini; then
     echo "Already enabled. If not, please manually edit $appini"
+  elif ! env | grep -q root; then
+    "You're not running as root. Please manually edit $appini"
   else
-    sed -i s_http_https_g $appini
-    sed -i s_:3001__g $appini
+    sed -i s!ROOT_URL\ \ \ \ \ \ \ \ \ \ = http://_ROOT_URL\ \ \ \ \ \ \ \ \ \ = https://_g $appini
+    sed -r s!^PROTOCOL\ \ \ \ \ \ \ \ \ \ = http\$!PROTOCOL\ \ \ \ \ \ \ \ \ \ = https!
+    sed -i s!:3001!!g $appini
     sed -i s!HTTP_PORT\ \ \ \ \ \ \ \ \ =\ 3001!HTTP_PORT\ \ \ \ \ \ \ \ \ =\ 443! $appini
     echo "Please restart the service:"
     echo "systemctl restart snap.$SNAP_NAME.$SNAP_NAME.service"
