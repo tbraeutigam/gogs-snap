@@ -44,6 +44,16 @@ elif [ "$1" = "cert" ]; then
   fi
   #echo "Executing: $SNAP/bin/gogs $@ -o $SDATA/certs"
   cd $SNAP/bin; exec ./gogs $@ -o $SDATA/certs/
+elif [ "$1" = "enableHttps" ]; then
+  if grep -q 'https://' $appini; then
+    echo "Already enabled. If not, please manually edit $appini"
+  else
+    sed -i s_http_https_g $appini
+    sed -i s_:3001__g $appini
+    sed -i s!HTTP_PORT\ \ \ \ \ \ \ \ \ =\ 3001!HTTP_PORT\ \ \ \ \ \ \ \ \ =\ 443! $appini
+    echo "Please restart the service:"
+    echo "systemctl restart snap.$SNAP_NAME.$SNAP_NAME.service"
+  fi
 elif [ "$1" = "direct" ]; then
   para=$(echo "$@" | sed 's_^direct __')
   #echo "Executing $SNAP/bin/gogs $para"
