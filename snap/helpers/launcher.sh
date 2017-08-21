@@ -61,7 +61,7 @@ elif [ "$1" = "direct" ]; then
   para=$(echo "$@" | sed 's_^direct __')
   cd $SNAP/bin; exec ./gogs $para -c $appini
 elif [ "$1" = "snap" ]; then
-  para=$(echo "$@" | sed 's_^direct __')
+  para=$(echo "$@" | sed 's_^snap __')
   #echo "Executing $SNAP/bin/gogs $para"
   if echo "$para" | grep -q 'app.ini'; then
     cd $SNAP/bin; exec ./gogs $para
