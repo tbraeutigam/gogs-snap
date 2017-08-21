@@ -60,5 +60,9 @@ elif [ "$1" = "enableHttps" ]; then
 elif [ "$1" = "direct" ]; then
   para=$(echo "$@" | sed 's_^direct __')
   #echo "Executing $SNAP/bin/gogs $para"
-  cd $SNAP/bin; exec ./gogs $para
+  if echo "$para" | grep -q 'app.ini'; then
+    cd $SNAP/bin; exec ./gogs $para
+  else
+    cd $SNAP/bin; exec ./gogs $para -c $appini
+  fi
 fi

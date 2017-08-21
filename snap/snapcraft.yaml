@@ -29,8 +29,8 @@ apps:
     plugs: [network, network-bind]
   cert:
     command: bin/run direct cert
-  admin:
-    command: bin/run direct admin
+#  admin:
+#    command: bin/run direct admin
   import:
     command: bin/run direct import
   backup:
