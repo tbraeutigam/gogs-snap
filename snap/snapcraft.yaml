@@ -22,21 +22,21 @@ apps:
     daemon: simple
     plugs: [network, network-bind]
   web:
-    command: bin/run direct web
+    command: bin/run snap web
     plugs: [network, network-bind]
   hook:
-    command: bin/run direct hook
+    command: bin/run snap hook
     plugs: [network, network-bind]
   cert:
-    command: bin/run direct cert
+    command: bin/run snap cert
 #  admin:
 #    command: bin/run direct admin
   import:
-    command: bin/run direct import
+    command: bin/run snap import
   backup:
-    command: bin/run direct backup
+    command: bin/run snap backup
   restore:
-    command: bin/run direct restore
+    command: bin/run snap restore
   help:
     command: bin/run help
 
