@@ -50,10 +50,10 @@ elif [ "$1" = "enableHttps" ]; then
   elif ! env | grep -q root; then
     "You're not running as root. Please manually edit $appini"
   else
-    sed -i s!ROOT_URL\ \ \ \ \ \ \ \ \ \ = http://!ROOT_URL\ \ \ \ \ \ \ \ \ \ =\ https://!g $appini
-    sed -r s!^PROTOCOL\ \ \ \ \ \ \ \ \ \ = http\$!PROTOCOL\ \ \ \ \ \ \ \ \ \ =\ https!
-    sed -i s!:3001!!g $appini
-    sed -i s!HTTP_PORT\ \ \ \ \ \ \ \ \ =\ 3001!HTTP_PORT\ \ \ \ \ \ \ \ \ =\ 443! $appini
+    sed -i 's!\(ROOT_URL\ \ \ \ \ \ \ \ \ \ =\ http\):!\1s:!g' $appini
+    sed -i 's!:3001!!g' $appini
+    sed -i 's!^PROTOCOL\ \ \ \ \ \ \ \ \ \ =\ http$!\0s!' $appini
+    sed -i 's!\(HTTP_PORT\ \ \ \ \ \ \ \ \ =\) 3001!\1\ 443!' $appini
     echo "Please restart the service:"
     echo "systemctl restart snap.$SNAP_NAME.$SNAP_NAME.service"
   fi
