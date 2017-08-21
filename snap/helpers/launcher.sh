@@ -29,43 +29,40 @@ cp -r --preserve=mode $SNAP/usr/share/git-core/templates $SDATA/git/
 git config --global init.templateDir $SDATA/git/templates/
 
 # Implement a minimal help/minimal interface
-if [ -z $1 ] || [ "$1" = "web" ]; then
-  #echo "Executing: $SNAP/bin/gogs web -c $appini"
-  cd $SNAP/bin
-  exec ./gogs web -c $appini
-elif [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-  less $SNAP/README.md
-  exit 0
-elif [ "$1" = "cert" ]; then
-  if [ "$2" = "help" ] || [ "$2" = "-h" ] || [ "$2" = "--help" ]; then
-    #echo "Executing: $SNAP/bin/gogs $@"
-    cd $SNAP/bin; exec ./gogs cert --help
-    exit 0
-  fi
-  #echo "Executing: $SNAP/bin/gogs $@ -o $SDATA/certs"
-  cd $SNAP/bin; exec ./gogs $@ -o $SDATA/certs/
-elif [ "$1" = "enableHttps" ]; then
-  if grep -q 'https://' $appini; then
-    echo "Already enabled. If not, please manually edit $appini"
-  elif ! env | grep -q root; then
-    "You're not running as root. Please manually edit $appini"
-  else
-    sed -i 's!\(ROOT_URL\ \ \ \ \ \ \ \ \ \ =\ http\):!\1s:!g' $appini
-    sed -i 's!:3001!!g' $appini
-    sed -i 's!^PROTOCOL\ \ \ \ \ \ \ \ \ \ =\ http$!\0s!' $appini
-    sed -i 's!\(HTTP_PORT\ \ \ \ \ \ \ \ \ =\) 3001!\1\ 443!' $appini
-    echo "Please restart the service:"
-    echo "systemctl restart snap.$SNAP_NAME.$SNAP_NAME.service"
-  fi
-elif [ "$1" = "direct" ]; then
-  para=$(echo "$@" | sed 's_^direct __')
-  cd $SNAP/bin; exec ./gogs $para -c $appini
-elif [ "$1" = "snap" ]; then
-  para=$(echo "$@" | sed 's_^snap __')
-  #echo "Executing $SNAP/bin/gogs $para"
-  if echo "$para" | grep -q 'app.ini'; then
+
+case "$1" in
+  help)
+      less $SNAP/README.md
+      exit 0
+    break;;
+  enableHttps)
+      grep -q 'https://' $appini && \
+        echo "Already enabled. If not, please manually edit $appini" && \
+        exit 1
+      env | grep -q root || \
+        ( echo "You're not running as root. Please manually edit $appini" && \
+        exit 1 )
+
+      sed -i 's!\(ROOT_URL\ \ \ \ \ \ \ \ \ \ =\ http\):!\1s:!g' $appini
+      sed -i 's!:3001!!g' $appini
+      sed -i 's!^PROTOCOL\ \ \ \ \ \ \ \ \ \ =\ http$!\0s!' $appini
+      sed -i 's!\(HTTP_PORT\ \ \ \ \ \ \ \ \ =\) 3001!\1\ 443!' $appini
+      echo "Please restart the service:"
+      echo "systemctl restart snap.$SNAP_NAME.$SNAP_NAME.service"
+    break;;
+  snap)
+    para=$(echo "$@" | sed 's_^snap __')
+    if echo "$para" | grep -q 'app.ini'; then
+      cd $SNAP/bin; exec ./gogs $para
+    else
+      cd $SNAP/bin; exec ./gogs $para -c $appini
+    fi
+    break;;
+  direct)
+    para=$(echo "$@" | sed 's_^direct __')
     cd $SNAP/bin; exec ./gogs $para
-  else
-    cd $SNAP/bin; exec ./gogs $para -c $appini
-  fi
-fi
+    break;;
+  *)
+    cd $SNAP/bin; exec ./gogs web -c $appini
+    break;;
+esac

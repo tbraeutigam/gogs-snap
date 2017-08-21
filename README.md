@@ -23,6 +23,10 @@ systemctl stop snap.$SNAP_NAME.$SNAP_NAME.service
 systemctl disable snap.$SNAP_NAME.$SNAP_NAME.service
 ```
 
+If you are looking to use *any* of the `gogsgit.cmd` in conjunction with the
+daemon, you have to use `sudo` (or your preferred way of starting with root).
+Otherwise the commands will run under your user and assume the below User-Mode.
+
 ## User-Mode
 
 Gogs can also be launched by any user.
@@ -33,22 +37,35 @@ no check for whether the port is already taken or not.
 If you haven't disabled the root daemon, you will likely
 need to modify `$SNAP_USER_DATA/app.ini` and give it a new port number.
 
+## Commands:
+
+| Command              | Description                                                         |
+| -------------------- | ------------------------------------------------------------------- |
+| gogsgit              | Start the daemon                                                    |
+| gogsgit cert         | run gogs cert with pre-filled output dir (`$SNAP_DATA/certs/`)      |
+| gogsgit enableHttps  | Sets standard changes to `app.ini` as required for https            |
+| gogsgit direct [cmd] | Runs `cmd` directly via gogs. No customizations to commandline      |
+|                      |                                                                     |
+| gogsgit.help         | Displays this `README.md` file                                      |
+| gogsgit.backup       | Runs `gogs backup`. Autofills `app.ini`-location if not provided.   |
+| gogsgit.restore      | Runs `gogs restore`. Autofills `app.ini`-location if not provided.  |
+| gogsgit.import       | Runs `gogs import`. Autofills `app.ini`-location if not provided.   |
+| gogsgit.hook         | Runs `gogs hook`. Autofills `app.ini`-location if not provided.     |
+| gogsgit.web          | Runs `gogs web`. Autofills `app.ini`-location if not provided.      |
+| gogsgit.cert         | Runs `gogs cert`. Autofills `app.ini`-location if not provided.     |
+
+Note: _You can append `--help` to any `gogsgit.[cmd]` to find out more about the command._
+FIXME: `gogsgit direct admin` will not work. There is no way to specify which gogs-instance to use at the moment. Requires Upstream change.
+
 ## Current state
 
 Somewhat tested functionality:
- * sqlite3 as backend (no other ones tried)
- * Create repository
- * Clone repository
- * Create branch
- * Upload file
- * Create PR/Merge PR
- * Create Wiki pages
- * Create issues
- * Create self-signed certificates
- * HTTPS Server
+ * sqlite3 as DB-backend (no other ones tried)
+ * Basic Gogs functionality with the default daemon
+ * Setting up https with self-signed certificates for daemon
 
-TODO:
- * Make it build on Ubuntu 16.04 (which misses `the golang-1.8-go` package)
+## TODO
+ * Provide more full command documentation
  * Maybe: provide a simple config setter/getter
  * Migrate to go-plugin/fix go-plugin build for gogs
  * Write a better patch for adding a output dir for self-signing certs
