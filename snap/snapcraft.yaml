@@ -27,8 +27,6 @@ apps:
   hook:
     command: bin/run snap hook
     plugs: [network, network-bind]
-  cert:
-    command: bin/run snap cert
   import:
     command: bin/run snap import
   backup:

@@ -11,6 +11,9 @@ case "$1" in
       less $SNAP/README.md
       exit 0
     break;;
+  cert)
+    cd $SNAP/bin; exec ./gogs $@ -o $SDATA/certs/
+    break;;
   enableHttps)
       grep -q 'https://' $appini && \
         echo "Already enabled. If not, please manually edit $appini" && \
@@ -28,7 +31,7 @@ case "$1" in
     break;;
   snap)
     para=$(echo "$@" | sed 's_^snap __')
-    if echo "$para" | grep -q 'app.ini'; then
+    if echo "$para" | grep -q -e 'app.ini'; then
       cd $SNAP/bin; exec ./gogs $para
     else
       cd $SNAP/bin; exec ./gogs $para -c $appini

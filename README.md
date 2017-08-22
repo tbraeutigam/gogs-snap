@@ -37,7 +37,7 @@ no check for whether the port is already taken or not.
 If you haven't disabled the root daemon, you will likely
 need to modify `$SNAP_USER_DATA/app.ini` and give it a new port number.
 
-## Commands:
+## Commands
 
 | Command              | Description                                                         |
 | -------------------- | ------------------------------------------------------------------- |
@@ -52,10 +52,10 @@ need to modify `$SNAP_USER_DATA/app.ini` and give it a new port number.
 | gogsgit.import       | Runs `gogs import`. Autofills `app.ini`-location if not provided.   |
 | gogsgit.hook         | Runs `gogs hook`. Autofills `app.ini`-location if not provided.     |
 | gogsgit.web          | Runs `gogs web`. Autofills `app.ini`-location if not provided.      |
-| gogsgit.cert         | Runs `gogs cert`. Autofills `app.ini`-location if not provided.     |
+| gogsgit.sqlite       | Runs an in-snap `sqlite3` to allow database manipulation            |
 
 Note: _You can append `--help` to any `gogsgit.[cmd]` to find out more about the command._
-FIXME: `gogsgit direct admin` will not work. There is no way to specify which gogs-instance to use at the moment. Requires Upstream change.
+FIXME: `gogsgit direct admin` will not work. There is no way to specify which gogs-instance to use at the moment. Possibly requires upstream change.
 
 ## Current state
 
