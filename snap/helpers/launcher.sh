@@ -10,10 +10,10 @@ case "$1" in
   help)
       less $SNAP/README.md
       exit 0
-    break;;
+    ;;
   cert)
     cd $SNAP/bin; exec ./gogs $@ -o $SDATA/certs/
-    break;;
+    ;;
   enableHttps)
       grep -q 'https://' $appini && \
         echo "Already enabled. If not, please manually edit $appini" && \
@@ -28,7 +28,8 @@ case "$1" in
       sed -i 's!\(HTTP_PORT\ \ \ \ \ \ \ \ \ =\) 3001!\1\ 443!' $appini
       echo "Please restart the service:"
       echo "systemctl restart snap.$SNAP_NAME.$SNAP_NAME.service"
-    break;;
+      exit 0
+    ;;
   snap)
     para=$(echo "$@" | sed 's_^snap __')
     if echo "$para" | grep -q -e 'app.ini'; then
@@ -36,12 +37,12 @@ case "$1" in
     else
       cd $SNAP/bin; exec ./gogs $para -c $appini
     fi
-    break;;
+    ;;
   direct)
     para=$(echo "$@" | sed 's_^direct __')
     cd $SNAP/bin; exec ./gogs $para
-    break;;
+    ;;
   *)
     cd $SNAP/bin; exec ./gogs web -c $appini
-    break;;
+    ;;
 esac
