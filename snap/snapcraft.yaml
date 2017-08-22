@@ -29,8 +29,6 @@ apps:
     plugs: [network, network-bind]
   cert:
     command: bin/run snap cert
-#  admin:
-#    command: bin/run direct admin
   import:
     command: bin/run snap import
   backup:
@@ -39,6 +37,8 @@ apps:
     command: bin/run snap restore
   help:
     command: bin/run help
+  sqlite:
+    command: usr/bin/sqlite3
 
 parts:
   go:
@@ -91,7 +91,13 @@ parts:
       ###
       # Copy build artifact and necessary files
       ##
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
+      ###
+      # Workaround for gogs ignoring APP_DATA_PATH in app.ini after snap update.
+      ##
+      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/current/custom $SNAPCRAFT_PART_INSTALL/bin/custom
+      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/common/data $SNAPCRAFT_PART_INSTALL/bin/data
+
       mkdir -p $SNAPCRAFT_PART_INSTALL/static
       cp    $SNAPCRAFT_PART_INSTALL/../go/src/github.com/gogits/gogs/gogs \
             $SNAPCRAFT_PART_INSTALL/bin/

@@ -5,31 +5,7 @@ source $SNAP/bin/directorySetup.sh
 export USERNAME=root
 export USER=root
 
-if [ ! -f $appini ]; then
-  echo "app.ini not found. Initializing Configuration."
-  out=$(sed s!SNAP_DIR_DATA!$SDATA!g $SNAP/app.ini)
-  out=$(echo "$out" | sed s!SNAP_DIR_COMMON!$SCOMMON!g)
-  echo "$out" > $appini
-fi
-
-mkdirData   certs              \
-            sshkeytest         \
-            static/templates   \
-            static/scripts     \
-            static/public      \
-
-mkDirCommon pictures           \
-            repositories       \
-            attachments        \
-            log
-
-# Configure Git to use the right templates
-mkdir -p $SDATA/git/
-cp -r --preserve=mode $SNAP/usr/share/git-core/templates $SDATA/git/
-git config --global init.templateDir $SDATA/git/templates/
-
 # Implement a minimal help/minimal interface
-
 case "$1" in
   help)
       less $SNAP/README.md
@@ -41,7 +17,7 @@ case "$1" in
         exit 1
       env | grep -q root || \
         ( echo "You're not running as root. Please manually edit $appini" && \
-        exit 1 )
+        exit 0 )
 
       sed -i 's!\(ROOT_URL\ \ \ \ \ \ \ \ \ \ =\ http\):!\1s:!g' $appini
       sed -i 's!:3001!!g' $appini
