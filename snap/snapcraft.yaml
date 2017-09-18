@@ -18,23 +18,33 @@ version-script: |
 
 apps:
   gogsgit:
-    command: bin/run
-    daemon: simple
+    command: bin/gogs
     plugs: [network, network-bind]
   web:
-    command: bin/run snap web
+    command: bin/gogs web
+    daemon: simple
     plugs: [network, network-bind]
+  admin:
+    command: bin/gogs admin
+    plugs: [network, network-bind]
+  cert:
+    command: bin/gogs cert
   hook:
-    command: bin/run snap hook
+    command: bin/gogs hook
     plugs: [network, network-bind]
   import:
-    command: bin/run snap import
+    command: bin/gogs import
+    plugs: [home]
   backup:
-    command: bin/run snap backup
+    command: bin/gogs backup
+    plugs: [home]
   restore:
-    command: bin/run snap restore
+    command: bin/gogs restore
+    plugs: [home]
   help:
-    command: bin/run help
+    command: bin/gogs --help
+  version:
+    command: bin/gogs --version
   sqlite:
     command: usr/bin/sqlite3
 
@@ -46,66 +56,47 @@ parts:
 
   gogs:
     plugin: nil
-    source: https://github.com/gogits/gogs
+    source: https://github.com/gogits/gogs.git
     source-type: git
     source-tag: v0.11.29
+    source-depth: 1
     after: [ go ]
     stage-packages: [ git, sqlite3, openssh-client ]
     build-packages: [ libpam0g-dev, libsqlite3-dev]
-    organize:
-      LICENSE: LICENSE-gogs
-      README.md: README-gogs.md
     prepare: |
-      export PATH=$SNAPCRAFT_PART_INSTAL/../../go/install/bin:$PATH
+      export PATH=$SNAPCRAFT_PART_INSTALL/../../go/install/bin:$PATH
       export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
       export bld=$SNAPCRAFT_PART_INSTALL/../build
       export src=$SNAPCRAFT_PART_INSTALL/../src
-      mkdir -p $GOPATH; cd $bld;
-      cp -r $src/* $bld/
-      ###
-      # Ad-Hoc patch of cert function to enable adding an output directory
-      ##
-      if grep -q "Directory to which the certificate" $src/cmd/cert.go; then
-        echo "Already Patched."
-      else
-        sed -i '/cli.Flag/a stringFlag("out, o", "./", "Directory to which the certificate should be written"),' cmd/cert.go
-        sed -i 's_"cert.pem"_ctx.String("out") + "cert.pem"_g' cmd/cert.go
-        sed -i 's_"key.pem"_ctx.String("out") + "key.pem"_g' cmd/cert.go
-        git add .
-        git commit -m "Committing cert command output dir patch"
-      fi
       mkdir -p $GOPATH/src/github.com/gogits/gogs
-      cp -r $bld/* $GOPATH/src/github.com/gogits/gogs/
+      cp -r $src/* $GOPATH/src/github.com/gogits/gogs/
     build: |
-      export PATH=$SNAPCRAFT_PART_INSTAL/../../go/install/bin:$PATH
+      export PATH=$SNAPCRAFT_PART_INSTALL/../../go/install/bin:$PATH
       export GOPATH=$SNAPCRAFT_PART_INSTALL/../go
       cd $GOPATH/src/github.com/gogits/gogs
       go build -v -tags "sqlite pam cert"
     install: |
-      ###
       # Set Convenience Variables
-      ##
       src=$SNAPCRAFT_PART_INSTALL/../go/src/github.com/gogits/gogs
-      ###
       # Copy build artifact and necessary files
-      ##
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
-      ###
+      mkdir -p $SNAPCRAFT_PART_INSTALL/gogs/
       # Workaround for gogs ignoring APP_DATA_PATH in app.ini after snap update.
-      ##
-      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/current/custom $SNAPCRAFT_PART_INSTALL/bin/custom
-      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/common/data $SNAPCRAFT_PART_INSTALL/bin/data
-
+      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/current/custom $SNAPCRAFT_PART_INSTALL/gogs/custom
+      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/common/data $SNAPCRAFT_PART_INSTALL/gogs/data
+      # Workaround for cmd/certs not knowing how to put files somewhere else
+      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/current/cert.pem $SNAPCRAFT_PART_INSTALL/gogs/cert.pem
+      ln -s /var/snap/$SNAPCRAFT_PROJECT_NAME/current/key.pem $SNAPCRAFT_PART_INSTALL/gogs/key.pem
+      # Copy static content
       mkdir -p $SNAPCRAFT_PART_INSTALL/static
       cp    $SNAPCRAFT_PART_INSTALL/../go/src/github.com/gogits/gogs/gogs \
-            $SNAPCRAFT_PART_INSTALL/bin/
+            $SNAPCRAFT_PART_INSTALL/gogs/
       cp -r $src/LICENSE \
             $src/templates \
             $src/public \
             $src/scripts \
             $SNAPCRAFT_PART_INSTALL/static/
-      cp    $src/README.md \
-            $SNAPCRAFT_PART_INSTALL/README-gogs.md
+      cp    $src/README.md $src/LICENSE \
+            $SNAPCRAFT_PART_INSTALL/
     prime:
       - -etc
       - -usr/lib/systemd
@@ -120,16 +111,10 @@ parts:
       - -usr/share/upstart
       - -var
 
-
   helpers:
     plugin: dump
     source: snap/helpers
     organize:
-      launcher.sh: bin/run
+      simple_launcher.sh: bin/gogs
       directorySetup.sh: bin/directorySetup.sh
-
-  readme:
-    plugin: dump
-    source: ./
-    organize:
-      LICENSE: LICENSE-snap
+      app.ini: gogs/snapApp.ini

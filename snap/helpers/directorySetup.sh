@@ -4,14 +4,14 @@ SDATA=''; SCOMMON='';
 if env | grep -q root; then
   export SDATA=$(echo $SNAP_DATA | sed s!$SNAP_REVISION!current!)
   export SCOMMON="$SNAP_COMMON"
+  export isRoot=`true`
 else
-  export SDATA=$(echo $SNAP_USER_DATA | sed s!$SNAP_REVISION!current!)
-  export SCOMMON="$SNAP_USER_COMMON"
+  echo "You are not running gogs as root. This is required for the snap package."
+  echo "Please re-run as root."
+  exit 1
 fi
 
-#export SDATA="$SCOMMON"
-
-export appini="$SDATA/custom/app.ini"
+export appini="$SDATA/custom/conf/app.ini"
 
 function mkDirCommon(){
   for dir in $@; do
@@ -33,14 +33,14 @@ function mkdirData(){
 
 if [ ! -f $appini ]; then
   echo "app.ini not found. Initializing Configuration."
-  out=$(sed s!SNAP_DIR_DATA!$SDATA!g $SNAP/app.ini)
+  out=$(sed s!SNAP_DIR_DATA!$SDATA!g $SNAP/gogs/snapApp.ini)
   out=$(echo "$out" | sed s!SNAP_DIR_COMMON!$SCOMMON!g)
   echo "$out" > $appini
 fi
 
 mkdirData   certs              \
             sshkeytest         \
-            custom             \
+            custom/conf        \
             static/templates   \
             static/scripts     \
             static/public
